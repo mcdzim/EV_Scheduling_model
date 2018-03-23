@@ -123,21 +123,21 @@ for hour = 0:24;
 end
 
 figure1 = figure;
-plot(FleetStatus(1:24, 1), FleetStatus(1:24, 5))
+plot(FleetStatus(1:24, 1), FleetStatus(1:24, 6))
 title('Vehicles at Home')
 xlabel('Hour of Day') 
 ylabel('Number of vehicles') 
 axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
 
-% figure2 = figure;
-% plot(FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
-% title('Vehicles at Home')
-% xlabel('Hour of Day') 
-% ylabel('Number of vehicles') 
-% legend('Vehicles Charging', 'Vehicles not Charging')
-% 
-% figure3 = figure;
-% plot(FleetStatus(1:24, 1), test_vehicle(1:24, 6))
-% title('Vehicles SoC')
-% xlabel('Hour of Day') 
-% ylabel('SoC') 
+figure2 = figure;
+plot(FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
+title('Vehicles at Home')
+xlabel('Hour of Day') 
+ylabel('Number of vehicles') 
+legend('Vehicles Charging', 'Vehicles not Charging')
+
+figure3 = figure;
+plot(FleetStatus(1:24, 1), test_vehicle(1:24, 6))
+title('Vehicles SoC')
+xlabel('Hour of Day') 
+ylabel('SoC') 
