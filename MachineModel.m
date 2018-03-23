@@ -35,7 +35,7 @@ clear;
 
 % Vehicle = Nissan Leaf
 % Full electric vehicle
-fleet_N = 10000;  %Fleet Size 
+fleet_N = 300;  %Fleet Size 
 
 
 
@@ -76,7 +76,7 @@ end
 FleetStatus(24, 6) = 0;
 test_vehicle(24, 9) = 0; 
 test_num = 200;
-for hour = 0:24;
+for hour = 0:23;
 
    % check vehicle locations
    fleet_data = Vehicle_home(fleet_data, hour);
