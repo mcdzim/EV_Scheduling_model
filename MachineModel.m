@@ -70,37 +70,38 @@ end
 
 
 %% Begin Simulation
+vehiclesHome(24, 6) = 0;
+
 for hour = 0:23;
    % rerun priority list calculation
-   fleet_data = Priority_Calc(fleet_data, hour);
+   fleet_data = Vehicle_home(fleet_data, hour);
    
    
    % charge priority vehicles
    
    %adjust current SoC
+   
+   
+   
+   
+ 
+  %Count vehicles in different states 
   vehiclesHome(hour+ 1, 1) = hour;
-  vehiclesHome(hour+ 1, 2) = sum(fleet_data(6, 1:fleet_N)==-1);
-  
-  
+  % State 0
+  vehiclesHome(hour+ 1, 2) = sum(fleet_data(6, 1:fleet_N)==0);
+  % State 1
+  vehiclesHome(hour+ 1, 3) = sum(fleet_data(6, 1:fleet_N)==1);
+  % State 2
+  vehiclesHome(hour+ 1, 4) = sum(fleet_data(6, 1:fleet_N)==2);
+  % State -1
+  vehiclesHome(hour+ 1, 5) = sum(fleet_data(6, 1:fleet_N)==-1);
+  % All vehicles at home
+  vehiclesHome(hour+ 1, 6) =   vehiclesHome(hour+ 1, 3) +  vehiclesHome(hour+ 1, 4) +  vehiclesHome(hour+ 1, 5);
 
-   
-   
-    
-    
-    
-    
-    
 end
-fleet_data = Priority_Calc(fleet_data, 15);
-
-% % Plot to check data is ok
-% figure1 = figure
-% plot_data = fleet_data(5, 1:fleet_N);
-% histogram(plot_data);
-% clear plot_data;
 
 figure2 = figure;
-plot(vehiclesHome(1:24, 1), vehiclesHome(1:24, 2))
+plot(vehiclesHome(1:24, 1), vehiclesHome(1:24, 6))
 title('Vehicles at Home')
 xlabel('Hour of Day') 
 ylabel('Number of vehicles') 
