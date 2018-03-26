@@ -11,49 +11,29 @@ before returning the new fleet data set to the origin with the state:
 Complete as of 26 March 2018
 %}
 function new_fleet_data = Vehicle_home(fleet_data, time)
-    time = time;
+    time = time+1;
     for x = 1: length(fleet_data)
        % check vehicle is home 
        t_arr = fleet_data(1,x);
        t_dep = fleet_data(2,x);
 
        if (  (t_arr < time) && (t_dep > time)  )
+           %if( home ) then state = -1
            fleet_data(6,x) = -1; 
 
-       elseif(  (t_dep < t_arr) & (time > t_arr)  )
+       elseif(  (t_dep < t_arr) && (time > t_arr)  )
            fleet_data(6,x) = -1; 
 
-       elseif(  (t_dep < t_arr) & (time < t_dep)  )
+       elseif(  (t_dep < t_arr) && (time < t_dep)  )
            fleet_data(6,x) = -1; 
 
        else %else give state = 0
            fleet_data(6,x) = 0; 
            
        end
-% 
-%        if (t_dep < t_arr) 
-%            if (time < t_dep)
-%                home = 1;
-%            elseif (time > t_arr)
-%                home = 1;
-%            else
-%                home = 0;
-%            end
-%        else 
-%            if ((t_arr < time) && (time < t_dep))
-%                home = 1;
-%            else
-%                home = 0
-%            end
-%        end
-%            
-%        if(home)
-%            fleet_data(6,x) = -1; 
-%        else
-%            fleet_data(6,x) = 0; 
-%        end
-%            
-           
+     
+       %if vehicle has recently arrived then set SoC to arrival SoC
+       
        
     end
 
