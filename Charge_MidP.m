@@ -124,20 +124,18 @@ end
 % axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
 % legend('Vehciles at Home', 'Vehicles not at home', 'Vehicles Charging', 'Vehicles Not Charging')
 
-figure2 = figure;
-plot(FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
-title('Vehicles States for Charge Midpoint Scheduling')
-xlabel('Hour of Day') 
-ylabel('Number of vehicles') 
-axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
-legend('Vehicles Charging', 'Vehicles Not Charging')
-
-
+% figure2 = figure;
+% plot(FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
+% title('Vehicles States for Charge Midpoint Scheduling')
+% xlabel('Hour of Day') 
+% ylabel('Number of vehicles') 
+% axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
+% legend('Vehicles Charging', 'Vehicles Not Charging')
 
 % min_Power_DTD = min(FleetStatus(1:24, 3))*charge_rate
 % min_Power_DTU = min(FleetStatus(1:24, 4))*charge_rate
-fleet_state = FleetStatus;
- 
 
+%Return status of fleet
+fleet_state = FleetStatus;
 end
 

@@ -96,6 +96,13 @@ fleet_ALAP = Charge_ALAP(fleet_data);
 fleet_MidP = Charge_MidP(fleet_data); 
 
 
+%% Run Simulation for Midpoint between charge as soon and as late as possible
+%split fleet in half and operate each half independantly
+
+% Charge upon arrival  
+fleet_Priority = Priority_Calc(fleet_data); 
+
+
 %% Plot Results
 
 figure3 = figure;
