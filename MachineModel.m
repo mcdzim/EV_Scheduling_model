@@ -35,7 +35,7 @@ clear;
 
 % Vehicle = Nissan Leaf
 % Full electric vehicle
-fleet_N = 300;  %Fleet Size 
+fleet_N = 10000;  %Fleet Size 
 
 
 
