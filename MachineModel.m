@@ -78,48 +78,59 @@ clear time_adjust;
 % ylabel('Number of Vehicles') 
 
 
-%% Run Simulation for Charge as Soon as Possible
+%% Run Simulations
 
 % Charge upon arrival  
 fleet_ASAP= Charge_ASAP(fleet_data); 
 
-%% Run Simulation for Charge as Late as Possible
-
-% Charge upon arrival  
+% Charge as late as possible
 fleet_ALAP = Charge_ALAP(fleet_data); 
 
 
-%% Run Simulation for Midpoint between charge as soon and as late as possible
+%Midpoint between charge as soon and as late as possible
 %split fleet in half and operate each half independantly
-
-% Charge upon arrival  
 fleet_MidP = Charge_MidP(fleet_data); 
 
 
-%% Run Simulation for Midpoint between charge as soon and as late as possible
-%split fleet in half and operate each half independantly
-
-% Charge upon arrival  
+% Priority Charging algorithm
 fleet_Priority = Priority_Calc(fleet_data); 
 
 
 %% Plot Results
 
-figure3 = figure;
-plot(fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 3), fleet_ALAP(1:24, 1), fleet_ALAP(1:24, 3), fleet_MidP(1:24, 1), fleet_MidP(1:24, 3))
+% %Plot demand turn down potential for ASAP, ALAP and Midpoint
+% figure3 = figure;
+% plot(fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 3), fleet_ALAP(1:24, 1), fleet_ALAP(1:24, 3), fleet_MidP(1:24, 1), fleet_MidP(1:24, 3))
+% title('Vehicles Charging vs Time of Day')
+% xlabel('Hour of Day') 
+% ylabel('Number of vehicles') 
+% legend('ASAP Scheduling', 'ALAP Scheduling', 'Midpoint Scheduling')
+
+% %Plot demand turn up potential for ASAP, ALAP and Midpoint
+% figure4 = figure;
+% plot(fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 4), fleet_ALAP(1:24, 1), fleet_ALAP(1:24, 4), fleet_MidP(1:24, 1), fleet_MidP(1:24, 4))
+% title('Vehicles Plugged in Not Charging vs Time of Day')
+% xlabel('Hour of Day') 
+% ylabel('Number of vehicles') 
+% legend('ASAP Scheduling', 'ALAP Scheduling', 'Midpoint Scheduling')
+
+%Plot demand turn down potential for Priority and Midpoint
+figure5 = figure;
+plot(fleet_Priority(1:24, 1), fleet_Priority(1:24, 3), fleet_MidP(1:24, 1), fleet_MidP(1:24, 3))
 title('Vehicles Charging vs Time of Day')
 xlabel('Hour of Day') 
 ylabel('Number of vehicles') 
-legend('ASAP Scheduling', 'ALAP Scheduling', 'Midpoint Scheduling')
+legend('Priority Scheduling', 'Midpoint Scheduling')
 
+%Plot demand turn down potential for Priority and Midpoint
 figure4 = figure;
-plot(fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 4), fleet_ALAP(1:24, 1), fleet_ALAP(1:24, 4), fleet_MidP(1:24, 1), fleet_MidP(1:24, 4))
+plot(fleet_Priority(1:24, 1), fleet_Priority(1:24, 4), fleet_MidP(1:24, 1), fleet_MidP(1:24, 4))
 title('Vehicles Plugged in Not Charging vs Time of Day')
 xlabel('Hour of Day') 
 ylabel('Number of vehicles') 
-legend('ASAP Scheduling', 'ALAP Scheduling', 'Midpoint Scheduling')
+legend('Priority Scheduling', 'Midpoint Scheduling')
 
-% 
+% %Plot status of sample vehicle throughout day
 % figure3 = figure;
 % plot(FleetStatus(1:24, 1), test_vehicle(1:24, 6))
 % title('Vehicles SoC')

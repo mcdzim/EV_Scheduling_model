@@ -32,16 +32,38 @@ for hour = start_hour:23
         batt_size = fleet_data(8, x);
         charge_rate = fleet_data(9, x);
         
+        if (hour-t_arr < 1)
+            curr_SoC = start_SoC;
+        end
+        
+        
+        
+        %Calculate Laxity
+        if ((t_dep< t_arr) && (t_dep < hour))
+         t_rem = t_dep-hour + 24;           
+        else
+         t_rem = t_dep-hour;                    
+        end
 
+        t_charge = (req_SoC-start_SoC)*batt_size/charge_rate;
 
+        t_laxity = t_charge - t_rem;
+        
 
         if (bev_state == 0)%If not plugged in
             %Set Priority to 0
             priority = 0;            
-            fleet_data(6, x) = 0;
         else
+            
             %Calculate charge priority
-            priority = 100;
+            
+            if curr_SoC < 40 %if SoC is less than 30, priority 100
+                priority = 100;
+            elseif (t_laxity < 0.5 && t_rem > 0 )%if less than 30 min laxity, priority 100
+                priority = 100;
+            else
+                priority = 75;
+            end      
             
              
             fleet_data(6, x) = priority;           
@@ -58,9 +80,33 @@ for hour = start_hour:23
     
     
     %% Charge Vehicles
-
-        if (priority > 80)
+        % Set cutoff priority to only allow top 15% of vehicles
+        cutoff_p = 80;
+    
+        if (priority == 0) % Not Plugged In
+            %State = Not Plugged in
+            fleet_data(6, x) = 0;
+            %Current SoC = 0
+            fleet_data(5, x) = 0;
+            
+        elseif (priority == 100) % Immediate Charge
+            %State = Charging
             fleet_data(6, x) = 1;
+            %Current SoC = Current SoC + hour of charge
+            fleet_data(5, x) = curr_SoC + charge_rate/batt_size;
+            
+        elseif (priority > cutoff_p) % Above cutoff for charge
+            %State = Charging
+            fleet_data(6, x) = 1;
+            %Current SoC = Current SoC + hour of charge
+            fleet_data(5, x) = curr_SoC + charge_rate/batt_size;
+
+        else % Below cutoff for charge
+            %State = Plugged in Not Charging
+            fleet_data(6, x) = 2;
+            %Current SoC = Current SoC;
+            fleet_data(5, x) = curr_SoC;
+
         end
     end    
     
