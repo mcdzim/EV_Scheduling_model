@@ -26,13 +26,13 @@ fleet_data(3, 1:fleet_N) = 0.5; % using set amount to check integral of charge h
 %Required SoC
 fleet_data(4, 1:fleet_N) = 0.9; %  normrnd(8.5,0.5,[fleet_N, 1]);  % just set all vehicles to be planned for 90% complation charge
 %Current SoC
-fleet_data(5, 1:fleet_N) = 0;
+fleet_data(5, 1:fleet_N) = 0.5;
 %Current State
 fleet_data(6, 1:fleet_N) = 0;
 %Priority
 fleet_data(7, 1:fleet_N) = 0;
 %Battery Size (kWh)
-fleet_data(8, 1:fleet_N) = 40;
+fleet_data(8, 1:fleet_N) = 35;
 %Charge Rate (kW)
 fleet_data(9, 1:fleet_N) = 3;
 %Other

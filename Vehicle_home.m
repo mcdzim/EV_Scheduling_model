@@ -11,13 +11,12 @@ before returning the new fleet data set to the origin with the state:
 Complete as of 26 March 2018
 %}
 function new_fleet_data = Vehicle_home(fleet_data, time)
-    time = time+1;
     for x = 1: length(fleet_data)
        % check vehicle is home 
        t_arr = fleet_data(1,x);
        t_dep = fleet_data(2,x);
 
-       if (  (t_arr < time) && (t_dep > time)  )
+       if ((t_arr <= time)  &&  (time <= t_dep))
            %if( home ) then state = -1
            fleet_data(6,x) = -1; 
 

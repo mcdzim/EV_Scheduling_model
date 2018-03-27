@@ -2,27 +2,28 @@ function fleet_state = Priority_Calc(fleet_data)
 %% Setup Simulation
 FleetStatus(24, 6) = 0;
 test_vehicle(24, 9) = 0; 
-test_num = 200; %random vehicle number to check on
+test_num = 3; %random vehicle number to check on
 
 %Algorithm Variables
 bias_SoC = 1;
-bias_TimeRem = 1;
-bias_TimeAvailable = 1;
+bias_Laxity = 1;
+bias_TimeParked = 0;
 
 
 %% Begin Iteration
-start_hour = 1; %testing using 1 will move to 13 or 15 when ready to process
-for hour = start_hour:23
-   % check vehicle locations
+start_hour = 0; %testing using 1 will move to 13 or 15 when ready to process
+fleet_priorities(24,length(fleet_data)) = 0; 
+fleet_laxity(24,length(fleet_data)) = 0; 
+N_100_priority(23, 2) = 0;
+
+ for hour = start_hour:23
+   %% Check vehicle locations
    fleet_data = Vehicle_home(fleet_data, hour);
-  
-  
-    
-   
+
    %% Calculate Priority
     for x = 1: length(fleet_data)
-        
-        % extract variables for vehicle
+     
+        %extract variables for vehicle
         t_arr =  fleet_data(1, x);
         t_dep = fleet_data(2, x);
         start_SoC = fleet_data(3, x);
@@ -32,8 +33,10 @@ for hour = start_hour:23
         batt_size = fleet_data(8, x);
         charge_rate = fleet_data(9, x);
         
-        if (hour-t_arr < 1)
+        if (((t_arr - hour) <= 1) && ((t_arr - hour) > 0 ))
+            %Vehicle Arriving in next hour - set Current SoC to arrival
             curr_SoC = start_SoC;
+            fleet_data(5, x) = start_SoC;
         end
         
         
@@ -45,32 +48,50 @@ for hour = start_hour:23
          t_rem = t_dep-hour;                    
         end
 
-        t_charge = (req_SoC-start_SoC)*batt_size/charge_rate;
+        t_charge = (req_SoC-curr_SoC)*batt_size/charge_rate;
 
-        t_laxity = t_charge - t_rem;
+        t_laxity =  t_rem - t_charge ;
+        if (t_laxity < 0)
+            %if laxity is negative set to 0.1
+            t_laxity = 0.1;
+        end
         
 
         if (bev_state == 0)%If not plugged in
             %Set Priority to 0
-            priority = 0;            
+            priority = 0;  
+            t_laxity = 0;
+     
+        elseif(req_SoC <= curr_SoC)
+            %Set Priority to 0
+            priority = 0;  
+            t_laxity = 0;
         else
             
             %Calculate charge priority
             
-            if curr_SoC < 40 %if SoC is less than 30, priority 100
+            if curr_SoC < 0.40 %if SoC is less than 40, priority 100
                 priority = 100;
-            elseif (t_laxity < 0.5 && t_rem > 0 )%if less than 30 min laxity, priority 100
+            elseif (t_laxity < 0.5 && t_laxity > 0 && t_rem > 0 )%if less than 30 min laxity, priority 100
                 priority = 100;
             else
-                priority = 75;
-            end      
-            
-             
-            fleet_data(6, x) = priority;           
+                %Laxity Priority
+                priority = (t_rem - t_laxity) / t_rem *100;
+%                 %SoC Priority
+%                 priority = priority  + (curr_SoC/req_SoC)*bias_SoC;
+%                 %Length Parked Priority
+%                % priority = priority  + (curr_SoC/t_parked)*bias_SoC;
+%                 %Normalise Priority
+%                 priority = priority/(bias_SoC+bias_Laxity)*100 ;
+%                 
+            end              
         end
+        
+        
+        fleet_priorities(hour+1, x) = priority;
+        fleet_laxity(hour+1, x) = t_laxity;
 
-
-
+    end
 
 
 
@@ -80,32 +101,35 @@ for hour = start_hour:23
     
     
     %% Charge Vehicles
-        % Set cutoff priority to only allow top 15% of vehicles
-        cutoff_p = 80;
+    temp = fleet_priorities(hour+1, :);
+    temp = sort(temp);
+    N_100_priority(hour+1, 1) = sum(fleet_priorities(hour+1, :)==100);
+    cutoff_p = temp(1, length(temp)*0.5)-1;
+    N_100_priority(hour+1, 2) = sum(fleet_priorities(hour+1, :)>cutoff_p) -sum(fleet_priorities(hour+1, :)==100) ;
     
-        if (priority == 0) % Not Plugged In
+    for x = 1: length(fleet_data)
+        priority = fleet_priorities(hour+1, x);
+        if (fleet_data(6, x) == 0) % Not Plugged In
             %State = Not Plugged in
             fleet_data(6, x) = 0;
-            %Current SoC = 0
-            fleet_data(5, x) = 0;
-            
+     
         elseif (priority == 100) % Immediate Charge
             %State = Charging
             fleet_data(6, x) = 1;
             %Current SoC = Current SoC + hour of charge
-            fleet_data(5, x) = curr_SoC + charge_rate/batt_size;
+            fleet_data(5, x) = fleet_data(5, x) + charge_rate/batt_size;
             
         elseif (priority > cutoff_p) % Above cutoff for charge
             %State = Charging
             fleet_data(6, x) = 1;
             %Current SoC = Current SoC + hour of charge
-            fleet_data(5, x) = curr_SoC + charge_rate/batt_size;
+            fleet_data(5, x) = fleet_data(5, x) + charge_rate/batt_size;
 
         else % Below cutoff for charge
             %State = Plugged in Not Charging
             fleet_data(6, x) = 2;
             %Current SoC = Current SoC;
-            fleet_data(5, x) = curr_SoC;
+            fleet_data(5, x) = fleet_data(5, x) + 0;
 
         end
     end    
@@ -122,6 +146,9 @@ for hour = start_hour:23
         test_vehicle(hour+ 1, 7) = fleet_data(7, test_num);
         test_vehicle(hour+ 1, 8) = fleet_data(8, test_num);
         test_vehicle(hour+ 1, 9) = fleet_data(9, test_num);
+        test_vehicle(hour+ 1, 11) = priority;
+        test_vehicle(hour+ 1, 12) = fleet_laxity(hour+1, test_num);
+        
     
     %Record fleet state
         FleetStatus(hour+ 1, 1)= hour;
@@ -137,11 +164,11 @@ for hour = start_hour:23
         % All vehicles at home
         FleetStatus(hour+ 1, 6) =   FleetStatus(hour+ 1, 3) +  FleetStatus(hour+ 1, 4) +  FleetStatus(hour+ 1, 5);
 
-  
+        
 end
 
 for hour = 0:start_hour-1
-    %copy same as above
+           
 end
 
 % figure1 = figure;
@@ -162,6 +189,14 @@ legend('Vehicles Charging', 'Vehicles Not Charging')
 
 % min_Power_DTD = min(FleetStatus(1:24, 3))*charge_rate
 % min_Power_DTU = min(FleetStatus(1:24, 4))*charge_rate
+
+figure1 = figure;
+plot(FleetStatus(1:24, 1), FleetStatus(1:24, 6), FleetStatus(1:24, 1), N_100_priority(:, 1) , FleetStatus(1:24, 1), N_100_priority(:, 2) )
+title('Vehicles at 100 Priority')
+xlabel('Hour of Day') 
+ylabel('Number of vehicles') 
+axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
+legend('Vehicles at Home', 'Vehicles with 100 priority', 'Vehicles above cutoff < 100 priority')
 
 % Return Status of Fleet
 fleet_state = FleetStatus;
