@@ -1,4 +1,4 @@
-function fleet_state = Charge_ALAP(fleet_data)
+function fleet_state = Charge_MidP(fleet_data)
 %% Setup Simulation
 FleetStatus(24, 6) = 0;
 test_vehicle(24, 9) = 0; 
@@ -12,8 +12,8 @@ for hour = 0:23
   
     
    
-
-    for x = 1: length(fleet_data)
+    %Simulation for ALAP
+    for x = 1: length(fleet_data)/2
         t_arr =  fleet_data(1, x);
         t_dep = fleet_data(2, x);
         charge_rate = fleet_data(9, x);
@@ -33,7 +33,7 @@ for hour = 0:23
         t_charge = (req_SoC-start_SoC)*batt_size/charge_rate;
 
         if (fleet_data(6, x) == -1) %If plugged in
-            if (t_charge > t_rem-0.5)
+            if (t_charge > t_rem+1)
                 %Status Charging
                 fleet_data(6, x) = 1;
             else
@@ -48,6 +48,41 @@ for hour = 0:23
 
     end
    
+        
+    %Simulation for ASAP
+    for x = 1: length(fleet_data)/2 : length(fleet_data)
+        t_arr =  fleet_data(1, x);
+        t_dep = fleet_data(2, x);
+        charge_rate = fleet_data(9, x);
+        req_SoC = fleet_data(4, x);
+        start_SoC = fleet_data(3, x);
+        batt_size = fleet_data(8, x);
+
+        %Calculate time plugged in
+        t_plugged_in = hour-t_arr;
+        if (t_plugged_in<0)
+            t_plugged_in = t_plugged_in + 24;
+        end
+
+
+        if (fleet_data(6, x) == -1) %If plugged in
+            curr_SoC = start_SoC + t_plugged_in*charge_rate/batt_size;
+            if (curr_SoC < 0.9)
+                %Status Charging
+                fleet_data(6, x) = 1;
+            else
+                %Status Plugged in not Charging
+                fleet_data(6, x) = 2;
+            end
+        end
+
+
+
+
+
+    end
+   
+
 
     
     %record current vehicle state
@@ -89,18 +124,18 @@ end
 % axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
 % legend('Vehciles at Home', 'Vehicles not at home', 'Vehicles Charging', 'Vehicles Not Charging')
 
-% figure2 = figure;
-% plot(FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
-% title('Vehicles States for Charge ALAP Scheduling')
-% xlabel('Hour of Day') 
-% ylabel('Number of vehicles') 
-% axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
-% legend('Vehicles Charging', 'Vehicles Not Charging')
+figure2 = figure;
+plot(FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
+title('Vehicles States for Charge ALAP Scheduling')
+xlabel('Hour of Day') 
+ylabel('Number of vehicles') 
+axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
+legend('Vehicles Charging', 'Vehicles Not Charging')
+
+
 
 % min_Power_DTD = min(FleetStatus(1:24, 3))*charge_rate
 % min_Power_DTU = min(FleetStatus(1:24, 4))*charge_rate
-
-%Return Status of Fleet
 fleet_state = FleetStatus;
  
 

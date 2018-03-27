@@ -33,7 +33,7 @@ for hour = 0:23
         t_charge = (req_SoC-start_SoC)*batt_size/charge_rate;
 
         if (fleet_data(6, x) == -1) %If plugged in
-            if (t_charge > t_rem+1)
+            if (t_charge > t_rem-0.5)
                 %Status Charging
                 fleet_data(6, x) = 1;
             else
@@ -41,6 +41,9 @@ for hour = 0:23
                 fleet_data(6, x) = 2;
             end
         end
+
+
+
 
 
 
@@ -59,7 +62,7 @@ for hour = 0:23
         batt_size = fleet_data(8, x);
 
         %Calculate time plugged in
-        t_plugged_in = hour-t_arr;
+        t_plugged_in = hour+1-t_arr;
         if (t_plugged_in<0)
             t_plugged_in = t_plugged_in + 24;
         end

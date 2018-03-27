@@ -30,10 +30,14 @@ for hour = 0:23
         end
         
         %Calculate time required to charge
-        t_charge = (req_SoC-start_SoC)*batt_size/charge_rate;
+        t_charge = (req_SoC-start_SoC)*charge_rate/batt_size;
 
+        if (hour > 2)
+            busted = 0;
+        end
+            
         if (fleet_data(6, x) == -1) %If plugged in
-            if (t_charge > t_rem-0.5)
+            if (t_charge > t_rem+1)
                 %Status Charging
                 fleet_data(6, x) = 1;
             else
@@ -81,26 +85,26 @@ for hour = 0:23
   
 end
 
-% figure1 = figure;
-% plot(FleetStatus(1:24, 1), FleetStatus(1:24, 6),FleetStatus(1:24, 1), FleetStatus(1:24, 2),FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
-% title('Vehicles States for Charge ASAP')
-% xlabel('Hour of Day') 
-% ylabel('Number of vehicles') 
-% axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
-% legend('Vehciles at Home', 'Vehicles not at home', 'Vehicles Charging', 'Vehicles Not Charging')
+figure1 = figure;
+plot(FleetStatus(1:24, 1), FleetStatus(1:24, 6),FleetStatus(1:24, 1), FleetStatus(1:24, 2),FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
+title('Vehicles States for Charge ASAP')
+xlabel('Hour of Day') 
+ylabel('Number of vehicles') 
+axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
+legend('Vehciles at Home', 'Vehicles not at home', 'Vehicles Charging', 'Vehicles Not Charging')
 
-% figure2 = figure;
-% plot(FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
-% title('Vehicles States for Charge ALAP Scheduling')
-% xlabel('Hour of Day') 
-% ylabel('Number of vehicles') 
-% axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
-% legend('Vehicles Charging', 'Vehicles Not Charging')
+figure2 = figure;
+plot(FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
+title('Vehicles States for Charge ASAP Scheduling')
+xlabel('Hour of Day') 
+ylabel('Number of vehicles') 
+axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
+legend('Vehicles Charging', 'Vehicles Not Charging')
+
+
 
 % min_Power_DTD = min(FleetStatus(1:24, 3))*charge_rate
 % min_Power_DTU = min(FleetStatus(1:24, 4))*charge_rate
-
-%Return Status of Fleet
 fleet_state = FleetStatus;
  
 

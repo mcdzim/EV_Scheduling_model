@@ -22,7 +22,7 @@ for hour = 0:23
         batt_size = fleet_data(8, x);
 
         %Calculate time plugged in
-        t_plugged_in = hour-t_arr;
+        t_plugged_in = hour+1-t_arr;
         if (t_plugged_in<0)
             t_plugged_in = t_plugged_in + 24;
         end
