@@ -32,7 +32,7 @@ fleet_data(6, 1:fleet_N) = 0;
 %Priority
 fleet_data(7, 1:fleet_N) = 0;
 %Battery Size (kWh)
-fleet_data(8, 1:fleet_N) = 35;
+fleet_data(8, 1:fleet_N) = 40;
 %Charge Rate (kW)
 fleet_data(9, 1:fleet_N) = 3;
 %Other
@@ -96,11 +96,10 @@ fleet_ALAP = Charge_ALAP(fleet_data);
 fleet_MidP = Charge_MidP(fleet_data); 
 
 
-%% Run Simulation for Midpoint between charge as soon and as late as possible
-%split fleet in half and operate each half independantly
+%% Run Simulation for using Priority Algorithm
 
-% Charge upon arrival  
-fleet_Priority = Priority_Calc(fleet_data); 
+% Charge based on priority algorithm  
+% fleet_Priority = Priority_Calc(fleet_data); 
 
 
 %% Plot Results
