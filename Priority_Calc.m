@@ -9,6 +9,7 @@ test_num = 3; %random vehicle number to check on
 start_hour = 0; %testing using 1 will move to 13 or 15 when ready to process
 fleet_priorities(24,length(fleet_data)) = 0; 
 fleet_laxity(24,length(fleet_data)) = 0; 
+fleet_charge_t(24,length(fleet_data)) = 0; 
 N_100_priority(23, 2) = 0;
  for hour_x = 0:23
      
@@ -54,7 +55,7 @@ N_100_priority(23, 2) = 0;
         end
         
         %Calculate Laxity
-% Calculated only using arrival SoC and time        t_charge = (req_SoC-curr_SoC)*batt_size/charge_rate;
+        t_charge = (req_SoC-curr_SoC)*batt_size/charge_rate;
         t_charge = (req_SoC-start_SoC)*batt_size/charge_rate;
         t_laxity =  t_rem - t_charge ;
         %if laxity is negative set to 0
@@ -81,6 +82,7 @@ N_100_priority(23, 2) = 0;
         % Record Priority and Laxity for All Vehicles
         fleet_priorities(hour+1, x) = priority;
         fleet_laxity(hour+1, x) = t_laxity;
+        fleet_charge_t(hour+1, x) = t_charge;
 
     end
     
@@ -162,13 +164,13 @@ N_100_priority(23, 2) = 0;
 % axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
 % legend('Vehciles at Home', 'Vehicles not at home', 'Vehicles Charging', 'Vehicles Not Charging')
 
-figure;
-plot(FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
-title('Vehicles States for Charge Priority Scheduling')
-xlabel('Hour of Day') 
-ylabel('Number of vehicles') 
-axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
-legend('Vehicles Charging', 'Vehicles Not Charging')
+% figure;
+% plot(FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
+% title('Vehicles States for Charge Priority Scheduling')
+% xlabel('Hour of Day') 
+% ylabel('Number of vehicles') 
+% axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
+% legend('Vehicles Charging', 'Vehicles Not Charging')
 
 % min_Power_DTD = min(FleetStatus(1:24, 3))*charge_rate
 % min_Power_DTU = min(FleetStatus(1:24, 4))*charge_rate

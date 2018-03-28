@@ -99,24 +99,42 @@ fleet_MidP = Charge_MidP(fleet_data);
 %% Run Simulation for using Priority Algorithm
 
 % Charge based on priority algorithm  
-% fleet_Priority = Priority_Calc(fleet_data); 
+fleet_Priority = Priority_Calc(fleet_data); 
 
 
 %% Plot Results
 
-figure3 = figure;
-plot(fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 6), fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 3), fleet_ALAP(1:24, 1), fleet_ALAP(1:24, 3), fleet_MidP(1:24, 1), fleet_MidP(1:24, 3))
+% % % Plots of ASAP, ALAP and Midpoint 
+% figure;
+% plot(fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 6), fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 3), fleet_ALAP(1:24, 1), fleet_ALAP(1:24, 3), fleet_MidP(1:24, 1), fleet_MidP(1:24, 3))
+% title('Vehicles Charging vs Time of Day')
+% xlabel('Hour of Day') 
+% ylabel('Number of vehicles') 
+% legend('Vehicles at home','ASAP Scheduling', 'ALAP Scheduling', 'Midpoint Scheduling')
+% 
+% figure;
+% plot(fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 6), fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 4), fleet_ALAP(1:24, 1), fleet_ALAP(1:24, 4), fleet_MidP(1:24, 1), fleet_MidP(1:24, 4))
+% title('Vehicles Plugged in Not Charging vs Time of Day')
+% xlabel('Hour of Day') 
+% ylabel('Number of vehicles') 
+% legend('Vehicles at home', 'ASAP Scheduling', 'ALAP Scheduling', 'Midpoint Scheduling')
+
+
+
+% % % Plots of Priority and Midpoint 
+figure;
+plot(fleet_Priority(1:24, 1), fleet_Priority(1:24, 6), fleet_Priority(1:24, 1), fleet_Priority(1:24, 3), fleet_MidP(1:24, 1), fleet_MidP(1:24, 3))
 title('Vehicles Charging vs Time of Day')
 xlabel('Hour of Day') 
 ylabel('Number of vehicles') 
-legend('Vehicles at home','ASAP Scheduling', 'ALAP Scheduling', 'Midpoint Scheduling')
+legend('Vehicles at home', 'Priority Scheduling', 'Midpoint Scheduling')
 
-figure4 = figure;
-plot(fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 6), fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 4), fleet_ALAP(1:24, 1), fleet_ALAP(1:24, 4), fleet_MidP(1:24, 1), fleet_MidP(1:24, 4))
+figure;
+plot(fleet_Priority(1:24, 1), fleet_Priority(1:24, 6), fleet_Priority(1:24, 1), fleet_Priority(1:24, 4), fleet_MidP(1:24, 1), fleet_MidP(1:24, 4))
 title('Vehicles Plugged in Not Charging vs Time of Day')
 xlabel('Hour of Day') 
 ylabel('Number of vehicles') 
-legend('Vehicles at home', 'ASAP Scheduling', 'ALAP Scheduling', 'Midpoint Scheduling')
+legend('Vehicles at home', 'Priority Scheduling', 'Midpoint Scheduling')
 
 
 % figure3 = figure;

@@ -54,7 +54,7 @@ N_100_priority(23, 2) = 0;
         end
         
         %Calculate Laxity
-% Calculated only using arrival SoC and time        t_charge = (req_SoC-curr_SoC)*batt_size/charge_rate;
+        t_charge = (req_SoC-curr_SoC)*batt_size/charge_rate;
         t_charge = (req_SoC-start_SoC)*batt_size/charge_rate;
         t_laxity =  t_rem - t_charge ;
         %if laxity is negative set to 0
@@ -70,7 +70,7 @@ N_100_priority(23, 2) = 0;
             %Set Laxity to Max
             t_laxity = 24;
             
-        elseif(t_laxity <= 0.1)         %If Laxity less than 1 hour: Charge
+        elseif(t_laxity <= 0.15)         %If Laxity less than 1 hour: Charge
             %Set Priority to 100
             priority = 100;  
         else                            %Else Charge Vehicle Later
@@ -162,13 +162,13 @@ N_100_priority(23, 2) = 0;
 % axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
 % legend('Vehciles at Home', 'Vehicles not at home', 'Vehicles Charging', 'Vehicles Not Charging')
 
-figure;
-plot(FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
-title('Vehicles States for Charge Priority Scheduling')
-xlabel('Hour of Day') 
-ylabel('Number of vehicles') 
-axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
-legend('Vehicles Charging', 'Vehicles Not Charging')
+% figure;
+% plot(FleetStatus(1:24, 1), FleetStatus(1:24, 3), FleetStatus(1:24, 1), FleetStatus(1:24, 4))
+% title('Vehicles States for Charge Priority Scheduling')
+% xlabel('Hour of Day') 
+% ylabel('Number of vehicles') 
+% axis([0 23 0 max(FleetStatus(1:24, 6))*1.1])
+% legend('Vehicles Charging', 'Vehicles Not Charging')
 
 % min_Power_DTD = min(FleetStatus(1:24, 3))*charge_rate
 % min_Power_DTU = min(FleetStatus(1:24, 4))*charge_rate
