@@ -63,7 +63,7 @@ Simulation_specs(1:5, x+1) = Scenario_current;
 figure;
 plot(hour, simulation(1:24, 1), hour, simulation(1:24, 2), hour, simulation(1:24, 3))
 s_title = '{\bf\fontsize{14} Vehicles Charging vs Time of Day for Scenario ' + string(x)  + '}';
-s_subTitle = 'Battery: ' + string(Scenario_current(1,4)) + 'kWh, Power: ' + string(Scenario_current(1,5)) + 'kW, ArrSoC: ' + string(100*Scenario_current(1,2)) + '%, ArrSoC: ' + string(100*Scenario_current(1,3)) + '%';
+s_subTitle = 'Battery: ' + string(Scenario_current(1,4)) + 'kWh, Power: ' + string(Scenario_current(1,5)) + 'kW, ArrSoC: ' + string(100*Scenario_current(1,2)) + '%, DepSoC: ' + string(100*Scenario_current(1,3)) + '%';
 title( {s_title;s_subTitle},'FontWeight','Normal' )
 xlabel('Hour of Day') 
 ylabel('Number of vehicles') 
@@ -100,7 +100,7 @@ Simulation_specs(1:5, x+1) = Scenario_current;
 figure;
 plot(hour, simulation(1:24, 1), hour, simulation(1:24, 2), hour, simulation(1:24, 3))
 s_title = '{\bf\fontsize{14} Vehicles Not Charging vs Time of Day for Scenario ' + string(x)  + '}';
-s_subTitle = 'Battery: ' + string(Scenario_current(1,4)) + 'kWh, Power: ' + string(Scenario_current(1,5)) + 'kW, ArrSoC: ' + string(100*Scenario_current(1,2)) + '%, ArrSoC: ' + string(100*Scenario_current(1,3)) + '%';
+s_subTitle = 'Battery: ' + string(Scenario_current(1,4)) + 'kWh, Power: ' + string(Scenario_current(1,5)) + 'kW, ArrSoC: ' + string(100*Scenario_current(1,2)) + '%, DepSoC: ' + string(100*Scenario_current(1,3)) + '%';
 title( {s_title;s_subTitle},'FontWeight','Normal' )
 xlabel('Hour of Day') 
 ylabel('Number of vehicles') 
