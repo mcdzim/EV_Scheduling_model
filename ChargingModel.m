@@ -4,7 +4,7 @@ function result = ChargingModel(fleet_def)
 Michael McDonald s1425486@sms.ed.ac.uk
 BEng Hons Individual Project
 Creation Date: 22/03/2018
-Last edit: 26/03/2018
+Last edit: 13/04/2018
 %}
 
 %% Fleet Definitions
@@ -72,17 +72,6 @@ for x = 1: fleet_N
 end
 clear time_adjust;
 
-% %plot arrival and departure times histogram
-% figure1 = figure;
-% histogram(fleet_data(1,:),'BinWidth',0.5)
-% hold on
-% histogram(fleet_data(2,:),'BinWidth',0.5)
-% hold off
-% legend('Arrival', 'Departure')
-% title('Arrival and Departure distribution of fleet')
-% xlabel('Hour of Day') 
-% ylabel('Number of Vehicles') 
-
 
 %% Run Simulation for Charge as Soon as Possible
 
@@ -109,6 +98,29 @@ fleet_MidP = Charge_MidP(fleet_data);
 
 
 %% Plot Results
+
+
+%plot arrival and departure times histogram once
+Scenario{1,1} = [10000, 0.9 - 1/40 , 0.9, 40, 3];
+if (fleet_def == Scenario{1,1})
+    figure;
+    yyaxis right
+    histogram(fleet_data(1,:),'BinWidth',0.5)
+    hold on
+    histogram(fleet_data(2,:),'BinWidth',0.5)
+    hold off
+    hold on
+    yyaxis left
+    plot(fleet_ASAP(1:24, 1), fleet_ASAP(1:24, 6))
+    hold off
+    legend('Arrival', 'Departure', 'Vehicles at Home')
+    title('Arrival and Departure distribution of fleet')
+    xlabel('Hour of Day') 
+    ylabel('Number of Vehicles') 
+    print('Arrival and Departure Times','-dpng')
+    close
+    vehicles_at_home = fleet_ASAP(1:24, 6)/10000;
+end
 
 % % % Plots of ASAP, ALAP and Midpoint 
 % figure;

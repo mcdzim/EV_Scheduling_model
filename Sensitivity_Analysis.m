@@ -1,7 +1,12 @@
 clear;
+tic
 for x = 0: 23
 hour(x+1, 1) = x;   
 end
+
+% Are images to be saved
+save_img = 0;
+
 
 % %Define Fleet
 % %Scenario = [fleet_Size, StartSoC, Req_SoC, BatSize, ChargeRate]
@@ -37,6 +42,9 @@ end
 
 
 %% Run Sensitivity for Charging
+'charging'
+
+
 ASAP_results_charging(1:24, 1) = hour;
 ALAP_results_charging(1:24, 1) = hour;
 MidP_results_charging(1:24, 1) = hour;
@@ -69,11 +77,17 @@ xlabel('Hour of Day')
 ylabel('Number of vehicles') 
 legend('ASAP', 'ALAP', 'Midpoint')
 axis([0 24 -0 1])
-print('Charging_Simulation' + string(x) ,'-dpng')
+if save_img
+    print('Charging_Simulation' + string(x) ,'-dpng')
+end
 close
 end
 
+toc
 %% Run Sensitivity for Not Charging
+'not charging'
+
+
 ASAP_results_not_charging(1:24, 1) = hour;
 ALAP_results_not_charging(1:24, 1) = hour;
 MidP_results_not_charging(1:24, 1) = hour;
@@ -106,9 +120,60 @@ xlabel('Hour of Day')
 ylabel('Number of vehicles') 
 legend('ASAP', 'ALAP', 'Midpoint')
 axis([0 24 -0 1])
-print('Not_Charging_Simulation' + string(x) ,'-dpng')
+if save_img
+    print('Not_Charging_Simulation' + string(x) ,'-dpng')
+end
 close
 end
 
+toc
+%% Plot MidP for varying charge times
+for y = 1:10
+   plot_data(1:24, y) =  MidP_results_charging(1:24, 3*y) ;
+   charge_time = Scenario(1, 3*y);
+   charge_time = charge_time{1,1};
+   charge_time = (charge_time(1,3)-charge_time(1,2)) * charge_time(1,4) / charge_time(1,5);
+   plot_name(y) = 'Daily Charge Time =' + string(charge_time) + 'h';
+end
 
-complete = 1
+figure;
+plot(hour, plot_data(1:24, 1),      hour, plot_data(1:24, 2),      hour, plot_data(1:24, 3),      hour, plot_data(1:24, 4),      hour, plot_data(1:24, 5),      hour, plot_data(1:24, 6),      hour, plot_data(1:24, 7),      hour, plot_data(1:24, 8),      hour, plot_data(1:24, 9),      hour, plot_data(1:24, 10))
+s_title = '{\bf\fontsize{14} Vehicles Charging vs Time of Day}';
+s_subTitle = 'Results From Sensitivity Analysis 2 of Midpoint Scheduling';
+title( {s_title;s_subTitle},'FontWeight','Normal' )
+xlabel('Hour of Day') 
+ylabel('Number of vehicles available') 
+legend(plot_name(1),     plot_name(2),     plot_name(3),     plot_name(4),     plot_name(5),     plot_name(6),     plot_name(7),     plot_name(8),     plot_name(9),     plot_name(10))
+%axis([0 24 -0 1])
+if save_img
+    print('Charging_Results' ,'-dpng')
+end
+close
+
+%% Plot MidP for varying not charge times
+for y = 1:10
+   plot_data(1:24, y) =  MidP_results_not_charging(1:24, 3*y) ;
+   charge_time = Scenario(1, 3*y);
+   charge_time = charge_time{1,1};
+   charge_time = (charge_time(1,3)-charge_time(1,2)) * charge_time(1,4) / charge_time(1,5);
+   plot_name(y) = 'Daily Charge Time =' + string(charge_time) + 'h';
+end
+
+figure;
+plot(hour, plot_data(1:24, 1),      hour, plot_data(1:24, 2),      hour, plot_data(1:24, 3),      hour, plot_data(1:24, 4),      hour, plot_data(1:24, 5),      hour, plot_data(1:24, 6),      hour, plot_data(1:24, 7),      hour, plot_data(1:24, 8),      hour, plot_data(1:24, 9),      hour, plot_data(1:24, 10))
+s_title = '{\bf\fontsize{14} Vehicles Not Charging vs Time of Day}';
+s_subTitle = 'Results From Sensitivity Analysis 2 of Midpoint Scheduling';
+title( {s_title;s_subTitle},'FontWeight','Normal' )
+xlabel('Hour of Day') 
+ylabel('Number of vehicles available') 
+legend(plot_name(1),     plot_name(2),     plot_name(3),     plot_name(4),     plot_name(5),     plot_name(6),     plot_name(7),     plot_name(8),     plot_name(9),     plot_name(10))
+axis([0 24 -0 1])
+if save_img
+    print('Not_Charging_Results' ,'-dpng')
+end
+close
+
+
+%% complete analysis
+'complete'
+toc

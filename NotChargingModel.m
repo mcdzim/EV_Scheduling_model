@@ -4,7 +4,7 @@ function result = NotChargingModel(fleet_def)
 Michael McDonald s1425486@sms.ed.ac.uk
 BEng Hons Individual Project
 Creation Date: 22/03/2018
-Last edit: 26/03/2018
+Last edit: 13/04/2018
 %}
 
 %% Fleet Definitions

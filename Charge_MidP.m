@@ -1,4 +1,4 @@
-function fleet_state = Charge_ASAP(fleet_data)
+function fleet_state = Charge_MidP(fleet_data)
 %% Setup Simulation
 FleetStatus(24, 6) = 0;
 test_vehicle(24, 9) = 0; 
