@@ -13,7 +13,7 @@ DSR_duration = 1;
 fleet_Size = 5000;
 ChargeRate = 3;
 StartSoC = 0.5; 
-Req_SoC = 0.9;
+Req_SoC = 0.85;
 BatSize = 40;
 results_hours = linspace(0,23,24);
 save_img = 1;
@@ -45,6 +45,32 @@ for x = 1:24
 
 
 	results_DTD(x, 1) = sim_results(x, 5);
+	results_DTD2(x, 1) = 0;
+	results_DTD3(x, 1) = 0;
+
+	if (DSR_duration == 2)
+
+		if (x < 24)
+			results_DTD2(x, 1) = sim_results(x+1, 5);
+		elseif (x==1)
+			results_DTD2(24, 1) = sim_results(x+1, 5);
+		else
+			results_DTD2(x, 1) = NaN;
+		end
+
+	elseif (DSR_duration == 3)
+		if (x<=23)
+			results_DTD2(x, 1) = sim_results(x+1, 5);
+		else
+			results_DTD2(x, 1) = NaN;
+		end
+
+		if (x<=22)
+			results_DTD3(x, 1) = sim_results(x+2, 5);
+		else
+			results_DTD3(x, 1) = NaN;
+		end
+	end
 
 	%make results square
 	for y = 1:24
@@ -109,14 +135,14 @@ for x = 1:24
 
 		figure
 		yyaxis right
-		p = plot(results_hours, (var1))
+		p = plot(results_hours, (var1));
 		p(1).LineWidth = 2;
 		ylabel('Percentage of Fleet Plugged In') 
 		axis([0 24 0 100])
 		hold on
 
 		yyaxis left
-		q = plot(results_hours2, (var2), results_hours2, (var3), results_hours2, (var4), results_hours2, (var5)) 
+		q = plot(results_hours2, (var2), results_hours2, (var3), results_hours2, (var4), results_hours2, (var5)) ;
 		q(1).LineWidth = 2;
 		axis([0 24 0 ChargeRate*fleet_Size/1000])
 		% area(results_hours2,sim_DTD2*ChargeRate/1000,'DisplayName','plot_data4','LineWidth',0.1);
@@ -166,8 +192,34 @@ for x = 1:24
 	sim_DTD(:, 1) = sim_results(:, 5);
 	sim_DTU(:, 1) = sim_results(:, 6);
 
-
 	results_DTU(x, 1) = sim_results(x, 6);
+	results_DTU2(x, 1) = 0;
+	results_DTU3(x, 1) = 0;
+
+	if (DSR_duration == 2)
+
+		if (x < 24)
+			results_DTU2(x, 1) = sim_results(x+1, 6);
+		elseif (x==1)
+			results_DTU2(24, 1) = sim_results(x+1, 6);
+		else
+			results_DTU2(x, 1) = NaN;
+		end
+
+	elseif (DSR_duration == 3)
+		if (x<=23)
+			results_DTU2(x, 1) = sim_results(x+1, 6);
+		else
+			results_DTU2(x, 1) = NaN;
+		end
+
+		if (x<=22)
+			results_DTU3(x, 1) = sim_results(x+2, 6);
+		else
+			results_DTU3(x, 1) = NaN;
+		end
+	end
+
 
 	%make results square
 	for y = 1:24
@@ -232,14 +284,14 @@ for x = 1:24
 
 		figure
 		yyaxis right
-		p = plot(results_hours, (var1))
+		p = plot(results_hours, (var1));
 		p(1).LineWidth = 2;
 		ylabel('Percentage of Fleet Plugged In') 
 		axis([0 24 0 100])
 		hold on
 
 		yyaxis left
-		q = plot(results_hours2, (var2), results_hours2, (var3), results_hours2, (var4), results_hours2, (var5)) 
+		q = plot(results_hours2, (var2), results_hours2, (var3), results_hours2, (var4), results_hours2, (var5)) ;
 		q(1).LineWidth = 2;
 		axis([0 24 0 ChargeRate*fleet_Size/1000])
 		% area(results_hours2,sim_DTD2*ChargeRate/1000,'DisplayName','plot_data4','LineWidth',0.1);
@@ -266,7 +318,7 @@ end
 
 %% Run Simulation for No Service
 DSR_direction = 0;
-for x = 1:24
+for x = 1:1
 	DSR_hour = x;
 	DSR_details = [DSR_hour, DSR_direction, DSR_duration, ChargeRate, fleet_Size, StartSoC, Req_SoC, BatSize];
 	sim_results = Charge_DSR(DSR_details);
@@ -352,25 +404,25 @@ for x = 1:24
 
 		figure
 		yyaxis right
-		p = plot(results_hours, (var1))
+		p = plot(results_hours, (var1));
 		p(1).LineWidth = 2;
 		ylabel('Percentage of Fleet Plugged In') 
 		axis([0 24 0 100])
 		hold on
 
 		yyaxis left
-		q = plot(results_hours2, (var2), results_hours2, (var3), results_hours2, (var4), results_hours2, (var5)) 
+		q = plot(results_hours2, (var2), results_hours2, (var3), results_hours2, (var4), results_hours2, (var5)) ;
 		q(1).LineWidth = 2;
 		axis([0 24 0 ChargeRate*fleet_Size/1000])
 		% area(results_hours2,sim_DTD2*ChargeRate/1000,'DisplayName','plot_data4','LineWidth',0.1);
 		legend(svar2, svar3, svar4, svar5)
 		s_title = '{\bf\fontsize{14} Power usage of Vehicle Fleet under Demand Response Activation}';
-		s_subTitle = 'DSR Service: No Service, Time:' + string(DSR_hour) + ':00 - ' + string(DSR_hour+DSR_duration) + ':00' ;
+		s_subTitle = 'DSR Service: No Service' ;
 		title( {s_title;s_subTitle},'FontWeight','Normal' )
 		xlabel('Time of Day (hr)') 
 		ylabel('Power (MW)') 
 		if save_img
-    		print('DSR_No_Service_' + string(x) ,'-dpng')
+    		print('DSR_No_Service' ,'-dpng')
 		end
 		close
 
@@ -385,6 +437,9 @@ end
 
 %% Plot Results From All Simulations
 %Plot DTU and DTD Achieved for hour of day
+save_img  = 1;
+
+
 figure
 plot(results_hours, results_DTD*ChargeRate/1000, results_hours, results_DTU*ChargeRate/1000) 
 s_title = '{\bf\fontsize{14} DSR Power vs Time of Day}';
@@ -399,6 +454,60 @@ if save_img
 end
 close
 
+%Plot DTU and DTD Achieved for hour of day with 2 hour DSR service
+if (DSR_duration == 2)
+	figure
+	q = plot(results_hours, results_DTD*ChargeRate/1000, 	results_hours, results_DTD2*ChargeRate/1000, 	results_hours, results_DTU*ChargeRate/1000, 	results_hours, results_DTU2*ChargeRate/1000) ;
+	q(2).LineWidth = 2;
+	q(4).LineWidth = 2;
+	s_title = '{\bf\fontsize{14} DSR Power vs Time of Day}';
+	s_subTitle =  'Vehicle Fleet of ' + string(fleet_Size) + '  ' + string(ChargeRate) + 'kW EVs' ;
+	title( {s_title;s_subTitle},'FontWeight','Normal')
+	axis([0 24 0 15])
+	xlabel('Time of Day (hr)') 
+	ylabel('Power (MW)') 
+	legend('Demand Turn Down Hour 1', 'Demand Turn Down Hour 2', 'Demand Turn Up Hour 1', 'Demand Turn Up Hour 2')		
+	if save_img
+		print('DSR Results Hour 2' ,'-dpng')
+	end
+	close
+end
+
+% %Plot DTU and DTD Achieved for hour of day with 2 hour DSR service
+% if (DSR_duration == 2)
+% 	figure
+% 	plot(results_hours, results_DTU*ChargeRate/1000, 	results_hours, results_DTU2*ChargeRate/1000) 
+% 	s_title = '{\bf\fontsize{14} DSR Power vs Time of Day}';
+% 	s_subTitle =  'Vehicle Fleet of ' + string(fleet_Size) + '  ' + string(ChargeRate) + 'kW EVs' ;
+% 	title( {s_title;s_subTitle},'FontWeight','Normal')
+% 	axis([0 24 0 15])
+% 	xlabel('Time of Day (hr)') 
+% 	ylabel('Power (MW)') 
+% 	legend('Demand Turn Up Hour 1', 'Demand Turn Up Hour 2')		
+% 	if save_img
+% 		print('DSR Results Hour 2' ,'-dpng')
+% 	end
+% 	close
+% end
+
+%Plot DTU and DTD Achieved for hour of day with 3 hour DSR service
+if (DSR_duration == 3)
+	figure
+	q = plot(results_hours, results_DTD*ChargeRate/1000, 	results_hours, results_DTD2*ChargeRate/1000, 	results_hours, results_DTD3*ChargeRate/1000, 	results_hours, results_DTU*ChargeRate/1000, 	results_hours, results_DTU2*ChargeRate/1000, 	results_hours, results_DTU3*ChargeRate/1000) ;
+	q(3).LineWidth = 2;
+	q(6).LineWidth = 2;
+	s_title = '{\bf\fontsize{14} DSR Power vs Time of Day}';
+	s_subTitle =  'Vehicle Fleet of ' + string(fleet_Size) + '  ' + string(ChargeRate) + 'kW EVs' ;
+	title( {s_title;s_subTitle},'FontWeight','Normal')
+	axis([0 24 0 15])
+	xlabel('Time of Day (hr)') 
+	ylabel('Power (MW)') 
+	legend('Demand Turn Down Hour 1', 'Demand Turn Down Hour 2', 'Demand Turn Down Hour 3', 'Demand Turn Up Hour 1', 'Demand Turn Up Hour 2', 'Demand Turn Up Hour 3')		
+	if save_img
+		print('DSR Results Hour 3' ,'-dpng')
+	end
+	close
+end
 
 toc;
 
