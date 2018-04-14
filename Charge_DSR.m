@@ -1,17 +1,22 @@
+function result = Charge_DSR(DSR_specs)
 %% Simulation Details
-clear;
 % DSR_hour is the hour the service is called upon
 % DSR_direction is the service required: 0= no service, 1= turn down,
 % 2=turn up
 
-DSR_hour = 13;
-DSR_direction = 1;
-DSR_duration = 1;
+
+% DSR_hour = 13;
+% DSR_direction = 1;
+% DSR_duration = 1;
+
+DSR_hour = DSR_specs(1,1);
+DSR_direction = DSR_specs(1,2);
+DSR_duration = DSR_specs(1,3);
 
 %% Fleet Definitions
 for n = 1
 	%fleet def = [fleet_Size, StartSoC, Req_SoC, BatSize, ChargeRate]
-	fleet_def = [5000, 0.5, 0.9, 40, 3];
+	fleet_def = [DSR_specs(1,5), DSR_specs(1,6), DSR_specs(1,7), DSR_specs(1,8), DSR_specs(1,4)];
 	fleet_Size = fleet_def(1, 1);
 	StartSoC = fleet_def(1, 2);
 	Req_SoC = fleet_def(1, 3);
@@ -26,11 +31,11 @@ for n = 1
 	%Departure Time
 	fleet_data(2, 1:fleet_Size) = normrnd(10.53,3.26,[fleet_Size, 1]);
 	%Start SoC  
-	fleet_data(3, 1:fleet_Size) = StartSoC; % using set amount to check integral of charge hours normrnd(0.3,0.1,[fleet_N, 1]);
+	fleet_data(3, 1:fleet_Size) = StartSoC; 
 	%Required SoC
-	fleet_data(4, 1:fleet_Size) = Req_SoC; %  normrnd(8.5,0.5,[fleet_N, 1]);  % just set all vehicles to be planned for 90% complation charge
+	fleet_data(4, 1:fleet_Size) = Req_SoC; 
 	%Current SoC
-	fleet_data(5, 1:fleet_Size) = 0;
+	fleet_data(5, 1:fleet_Size) = StartSoC;
 	%Current State
 	fleet_data(6, 1:fleet_Size) = 0;
 	%Priority
@@ -42,7 +47,7 @@ for n = 1
 	%Other
 
 
-   %As day is continuous need to move times greater tham 24 to next morning
+   %As day is continuous need to move times greater than 24 to next morning
 	for x = 1 : length(fleet_data)
 	    if  (fleet_data(1,x) >= 24)
 	      fleet_data(1,x) = fleet_data(1,x) - 24 ;
@@ -154,12 +159,12 @@ for vehicle_num = 1 : length(fleet_data)/2
                     priority = 100;   
                     
 
-                elseif(curr_SoC <= 1-+charge_rate/batt_size)   			% If Charged but available for DTU  
+                elseif(curr_SoC <= 1- charge_rate/batt_size)   			% If Not fully Charged and available for DTU  
                     %Set Priority to 0
                     priority = 10;  
                     %Set Laxity to Max
                     t_laxity = 24;   
-                else 													% If Charged but available for DTU  
+                else 													% If Fully Charged but available for DTU  
                     %Set Priority to 0
                     priority = 0;  
                     %Set Laxity to Max
@@ -177,11 +182,11 @@ for vehicle_num = 1 : length(fleet_data)/2
 	                    if (bev_state == 0) % Not Plugged In
 	                        %State = Not Plugged in
 	                        current_vehicle(6, 1) = 0;
-
+ 
 	                    elseif (priority < 10) %Do not Charge
 	                        %State = Not Charging
 	                        current_vehicle(6, 1) = 2;
-	                        %Current SoC = Current SoC + hour of charge
+	                        %Current SoC = Current SoC
 	                        current_vehicle(5, 1) = current_vehicle(5, 1) + 0;
 
 	                    elseif (priority >= cutoff_priority) %Above cutoff : Charge
@@ -197,7 +202,8 @@ for vehicle_num = 1 : length(fleet_data)/2
 	                        %Current SoC = Current SoC;
 	                        current_vehicle(5, 1) = current_vehicle(5, 1) + 0;
 	                    end
-	            	elseif (DSR_direction == 1) % Demand Turn Down
+	            	
+	            	elseif (DSR_direction == 1) % Demand Turn Down - stop charging
 	                    if (bev_state == 0) % Not Plugged In
 	                        %State = Not Plugged in
 	                        current_vehicle(6, 1) = 0;
@@ -222,32 +228,33 @@ for vehicle_num = 1 : length(fleet_data)/2
 	                        current_vehicle(5, 1) = current_vehicle(5, 1) + 0;
 	                    end
 
-	            	elseif (DSR_direction == 2) % Demand Turn Up
+	            	elseif (DSR_direction == 2) % Demand Turn Up - start charging those waiting
 	                    if (bev_state == 0) % Not Plugged In
 	                        %State = Not Plugged in
 	                        current_vehicle(6, 1) = 0;
 
-	                    elseif (priority <= 0) %Do not Charge
+	                    elseif (priority < 10) %Do not Charge - full battery
 	                        %State = Not Charging
 	                        current_vehicle(6, 1) = 2;
 	                        %Current SoC = Current SoC
 	                        current_vehicle(5, 1) = current_vehicle(5, 1) + 0;
 
-	                    elseif (priority >= cutoff_priority) %Above cutoff : Charge
+	                    elseif (priority >= cutoff_priority) %Above cutoff : Charge like normal
 	                        %State = Charging
 	                        current_vehicle(6, 1) = 1;
 	                        %Current SoC = Current SoC + hour of charge
 	                        current_vehicle(5, 1) = current_vehicle(5, 1) + charge_rate/batt_size;
 
-	                    else
-	                        % Below cutoff for charge
-	                        %State = Plugged in Not Charging
+	                    else % Below cutoff for charge : Normally do not charge, now demand turn up
+	                        %State = Demand turn Up
 	                        current_vehicle(6, 1) = 4;
 	                        %Current SoC = Current SoC + hour of charge
 	                        current_vehicle(5, 1) = current_vehicle(5, 1) + charge_rate/batt_size;
 	                    end
+					
 					end
-                else
+
+                else %Act as if normal because outside DSR window
                     if (bev_state == 0) % Not Plugged In
                         %State = Not Plugged in
                         current_vehicle(6, 1) = 0;
@@ -255,7 +262,7 @@ for vehicle_num = 1 : length(fleet_data)/2
                     elseif (priority <= 0) %Do not Charge
                         %State = Not Charging
                         current_vehicle(6, 1) = 2;
-                        %Current SoC = Current SoC + hour of charge
+                        %Current SoC = Current SoC
                         current_vehicle(5, 1) = current_vehicle(5, 1) + 0;
 
                     elseif (priority >= cutoff_priority) %Above cutoff : Charge
@@ -264,8 +271,7 @@ for vehicle_num = 1 : length(fleet_data)/2
                         %Current SoC = Current SoC + hour of charge
                         current_vehicle(5, 1) = current_vehicle(5, 1) + charge_rate/batt_size;
 
-                    else
-                        % Below cutoff for charge
+                    else % Below cutoff for charge
                         %State = Plugged in Not Charging
                         current_vehicle(6, 1) = 2;
                         %Current SoC = Current SoC;
@@ -286,8 +292,8 @@ for vehicle_num = 1 : length(fleet_data)/2
 		end
 	
 
-       for hour_t = 1 : hour_start-1        	
-       		hour = hour_t;
+       for hour_t = 1 : hour_start-1
+        	hour = hour_t;
             %Check vehicle is at home
             for temp_half_hour = 1:1
                    time = hour;
@@ -348,12 +354,12 @@ for vehicle_num = 1 : length(fleet_data)/2
                     priority = 100;   
                     
 
-                elseif(curr_SoC <= 1-+charge_rate/batt_size)   			% If Charged but available for DTU  
+                elseif(curr_SoC <= 1- charge_rate/batt_size)   			% If Not fully Charged and available for DTU  
                     %Set Priority to 0
                     priority = 10;  
                     %Set Laxity to Max
                     t_laxity = 24;   
-                else 													% If Charged but available for DTU  
+                else 													% If Fully Charged but available for DTU  
                     %Set Priority to 0
                     priority = 0;  
                     %Set Laxity to Max
@@ -371,11 +377,11 @@ for vehicle_num = 1 : length(fleet_data)/2
 	                    if (bev_state == 0) % Not Plugged In
 	                        %State = Not Plugged in
 	                        current_vehicle(6, 1) = 0;
-
+ 
 	                    elseif (priority < 10) %Do not Charge
 	                        %State = Not Charging
 	                        current_vehicle(6, 1) = 2;
-	                        %Current SoC = Current SoC + hour of charge
+	                        %Current SoC = Current SoC
 	                        current_vehicle(5, 1) = current_vehicle(5, 1) + 0;
 
 	                    elseif (priority >= cutoff_priority) %Above cutoff : Charge
@@ -391,7 +397,8 @@ for vehicle_num = 1 : length(fleet_data)/2
 	                        %Current SoC = Current SoC;
 	                        current_vehicle(5, 1) = current_vehicle(5, 1) + 0;
 	                    end
-	            	elseif (DSR_direction == 1) % Demand Turn Down
+	            	
+	            	elseif (DSR_direction == 1) % Demand Turn Down - stop charging
 	                    if (bev_state == 0) % Not Plugged In
 	                        %State = Not Plugged in
 	                        current_vehicle(6, 1) = 0;
@@ -416,32 +423,33 @@ for vehicle_num = 1 : length(fleet_data)/2
 	                        current_vehicle(5, 1) = current_vehicle(5, 1) + 0;
 	                    end
 
-	            	elseif (DSR_direction == 2) % Demand Turn Up
+	            	elseif (DSR_direction == 2) % Demand Turn Up - start charging those waiting
 	                    if (bev_state == 0) % Not Plugged In
 	                        %State = Not Plugged in
 	                        current_vehicle(6, 1) = 0;
 
-	                    elseif (priority <= 0) %Do not Charge
+	                    elseif (priority < 10) %Do not Charge - full battery
 	                        %State = Not Charging
 	                        current_vehicle(6, 1) = 2;
 	                        %Current SoC = Current SoC
 	                        current_vehicle(5, 1) = current_vehicle(5, 1) + 0;
 
-	                    elseif (priority >= cutoff_priority) %Above cutoff : Charge
+	                    elseif (priority >= cutoff_priority) %Above cutoff : Charge like normal
 	                        %State = Charging
 	                        current_vehicle(6, 1) = 1;
 	                        %Current SoC = Current SoC + hour of charge
 	                        current_vehicle(5, 1) = current_vehicle(5, 1) + charge_rate/batt_size;
 
-	                    else
-	                        % Below cutoff for charge
-	                        %State = Plugged in Not Charging
+	                    else % Below cutoff for charge : Normally do not charge, now demand turn up
+	                        %State = Demand turn Up
 	                        current_vehicle(6, 1) = 4;
 	                        %Current SoC = Current SoC + hour of charge
 	                        current_vehicle(5, 1) = current_vehicle(5, 1) + charge_rate/batt_size;
 	                    end
+					
 					end
-                else
+
+                else %Act as if normal because outside DSR window
                     if (bev_state == 0) % Not Plugged In
                         %State = Not Plugged in
                         current_vehicle(6, 1) = 0;
@@ -449,7 +457,7 @@ for vehicle_num = 1 : length(fleet_data)/2
                     elseif (priority <= 0) %Do not Charge
                         %State = Not Charging
                         current_vehicle(6, 1) = 2;
-                        %Current SoC = Current SoC + hour of charge
+                        %Current SoC = Current SoC
                         current_vehicle(5, 1) = current_vehicle(5, 1) + 0;
 
                     elseif (priority >= cutoff_priority) %Above cutoff : Charge
@@ -458,8 +466,7 @@ for vehicle_num = 1 : length(fleet_data)/2
                         %Current SoC = Current SoC + hour of charge
                         current_vehicle(5, 1) = current_vehicle(5, 1) + charge_rate/batt_size;
 
-                    else
-                        % Below cutoff for charge
+                    else % Below cutoff for charge
                         %State = Plugged in Not Charging
                         current_vehicle(6, 1) = 2;
                         %Current SoC = Current SoC;
@@ -478,11 +485,13 @@ for vehicle_num = 1 : length(fleet_data)/2
             fleet_SoC(hour, vehicle_num) = fleet_data(5, vehicle_num);
             fleet_Priority(hour, vehicle_num) = priority;
 		end
+	
+
                
 end
 
 %% Calculate 1/2 of fleet using ALAP Priority
-for vehicle_num = 1+length(fleet_data)/2 : length(fleet_data)
+for vehicle_num =  length(fleet_data)/2+1 :  length(fleet_data)
     %extract variables for vehicle
     current_vehicle(1:9, 1) = fleet_data(1:9, vehicle_num);
     t_arr =  current_vehicle(1, 1);
@@ -878,8 +887,24 @@ for vehicle_num = 1+length(fleet_data)/2 : length(fleet_data)
                
 end
 
+%% Record Results for export
+for x_hour = 1:24  
+	%Hour of Day
+	temp_result(x_hour, 1) = x_hour-1;
+	%Vehicles at Home
+	temp_result(x_hour, 2) = fleet_Size - sum(FleetCharging(x_hour, :)==0);
+	%Vehicles Charging
+	temp_result(x_hour, 3) = sum(FleetCharging(x_hour, :) == 1);
+	%Vehicles Not Charging
+	temp_result(x_hour, 4) = sum(FleetCharging(x_hour, :) == 2);
+	%Vehicles Charging - Now Demand Turn Down
+	temp_result(x_hour, 5) = sum(FleetCharging(x_hour, :) == 3);
+	%Vehicles Not Charging - Now Demand Turn Up
+	temp_result(x_hour, 6) = sum(FleetCharging(x_hour, :) == 4);
+end	
+result = temp_result;
 
-%% Plot Results
+%% Display Results - Commented out when using as a modular function
 	%Plot Fleet Activities per hour of day
     for temp_hour = 1:24
 
@@ -899,37 +924,39 @@ end
        plot_time2(temp_half_hour, 1) = temp_hour-.001;
        
     end
+
+
 	% figure
 	% plot(plot_time, plot_data1, plot_time, plot_data2, plot_time, plot_data3, plot_time, plot_data4, plot_time, plot_data5)
 	% legend('Vehicles at Home', 'Charging', 'Not Charging', 'Demand Turn Down', 'Demand Turn Up')
 	
-	%Plot Power Requirements
-	figure
-	plot(plot_time, plot_data2*ChargeRate/1000, plot_time, plot_data3*ChargeRate/1000) 
-	hold on
-	% Create area
-	area(plot_time2,plot_data4*ChargeRate/1000,'DisplayName','plot_data4','LineWidth',0.1);
-	area(plot_time2,plot_data5*ChargeRate/1000,'DisplayName','plot_data5','LineWidth',0.1);
+	% %Plot Power Requirements
+	% figure
+	% plot(plot_time, plot_data2*ChargeRate/1000, plot_time, plot_data3*ChargeRate/1000) 
+	% hold on
+	% % Create area
+	% area(plot_time2,plot_data4*ChargeRate/1000,'DisplayName','plot_data4','LineWidth',0.1);
+	% area(plot_time2,plot_data5*ChargeRate/1000,'DisplayName','plot_data5','LineWidth',0.1);
 
 
-	%plot_time, plot_data4*ChargeRate/1000, plot_time, plot_data5*ChargeRate/1000)
-	legend('Vehicles Charging', 'Not Charging', 'Demand Turn Down', 'Demand Turn Up')
-	s_title = '{\bf\fontsize{14} Power usage of Vehicle Fleet under Demand Response Call}';
-	if(DSR_direction == 1)
-		s_subTitle = 'DSR Service: Demand Turn Down, Time:' + string(DSR_hour) + ':00 - ' + string(DSR_hour+DSR_duration+0.01) + ':00' ;
-	elseif(DSR_direction == 2)
-		s_subTitle = 'DSR Service: Demand Turn Down, Time:' + string(DSR_hour) + ':00 - ' + string(DSR_hour+DSR_duration+0.01) + ':00' ;
-	else(DSR_direction == 0)
-		s_subTitle = 'DSR Service: No Service' ;
-	end
-	title( {s_title;s_subTitle},'FontWeight','Normal' )
-	xlabel('Time of Day (hr)') 
-	ylabel('Power (MW)') 
+	% %plot_time, plot_data4*ChargeRate/1000, plot_time, plot_data5*ChargeRate/1000)
+	% legend('Vehicles Charging', 'Not Charging', 'Demand Turn Down', 'Demand Turn Up')
+	% s_title = '{\bf\fontsize{14} Power usage of Vehicle Fleet under Demand Response Call}';
+	% if(DSR_direction == 1)
+	% 	s_subTitle = 'DSR Service: Demand Turn Down, Time:' + string(DSR_hour) + ':00 - ' + string(DSR_hour+DSR_duration+0.01) + ':00' ;
+	% elseif(DSR_direction == 2)
+	% 	s_subTitle = 'DSR Service: Demand Turn Down, Time:' + string(DSR_hour) + ':00 - ' + string(DSR_hour+DSR_duration+0.01) + ':00' ;
+	% else(DSR_direction == 0)
+	% 	s_subTitle = 'DSR Service: No Service' ;
+	% end
+	% title( {s_title;s_subTitle},'FontWeight','Normal' )
+	% xlabel('Time of Day (hr)') 
+	% ylabel('Power (MW)') 
  
 	% % Plot random vehicles SoC to check algorithm
-	% vehicle1 = 6;
-	% vehicle2 = 7;
-	% vehicle3 = 8;
+	% vehicle1 = 3006;
+	% vehicle2 = 3007;
+	% vehicle3 = 3008;
 	% figure
 	% plot(plot_time, fleet_SoC(:, vehicle1) , plot_time, fleet_SoC(:, vehicle2) , plot_time, fleet_SoC(:, vehicle3) )
 	% legend('Vehicle 1','Vehicle 2','Vehicle 3')
@@ -939,15 +966,16 @@ end
 	% plot(plot_time, fleet_Priority(:, vehicle1) , plot_time, fleet_Priority(:, vehicle2) , plot_time, fleet_Priority(:, vehicle3) )
 	% legend('Vehicle 1','Vehicle 2','Vehicle 3')
 
-	% Plot Histogram of maximum SoC to check how many vehicles were not charged
-	max_SoC(1, fleet_Size) = 0;
-	for temp_half_hour = 1: fleet_Size
-		max_SoC(1,temp_half_hour) = max(fleet_SoC(:, temp_half_hour))*100;
-	end
-	figure;
-	histogram(max_SoC(1,:))
-	title('Distribution of Vehicle State of Charge on Departure')
-	xlabel('Departure SoC') 
-	ylabel('Number of Vehicles') 
+	% % Plot Histogram of maximum SoC to check how many vehicles were not charged
+	% max_SoC(1, fleet_Size) = 0;
+	% for temp_half_hour = 1: fleet_Size
+	% 	max_SoC(1,temp_half_hour) = max(fleet_SoC(:, temp_half_hour))*100;
+	% end
+	% figure;
+	% histogram(max_SoC(1,:))
+	% title('Distribution of Vehicle State of Charge on Departure')
+	% xlabel('Departure SoC') 
+	% ylabel('Number of Vehicles') 
 
 
+end
