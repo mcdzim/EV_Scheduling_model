@@ -13,10 +13,10 @@ DSR_duration = 1;
 fleet_Size = 5000;
 ChargeRate = 3;
 StartSoC = 0.5; 
-Req_SoC = 0.85;
+Req_SoC = 0.89;
 BatSize = 40;
 results_hours = linspace(0,23,24);
-save_img = 0;
+save_img = 1;
 
 %% Run Simulation for Demand Turn Down every hour of the day
 DSR_direction = 1;
@@ -142,6 +142,7 @@ for x = 1:24
 		var3 = sim_charging2*ChargeRate/1000;
 		var4 = sim_not_charging2*ChargeRate/1000;
 		var5 = sim_DTD2*ChargeRate/1000;
+		Power_Demand_Turn_Down(:, x) = var2;
 
 		svar1 = 'Vehicles Home';
 		svar2 = 'Power Demand';
@@ -485,22 +486,34 @@ end
 
 %% Plot Results From All Simulations
 %Plot DTU and DTD Achieved for hour of day
-save_img  = 1;
+% save_img  = 1;
+
+%Removed while running simulations detailing vehicle charge rates
+% figure
+% plot(results_hours, results_DTD*ChargeRate/1000, results_hours, results_DTU*ChargeRate/1000) 
+% s_title = '{\bf\fontsize{14} DSR Power vs Time of Day}';
+% s_subTitle =  'Vehicle Fleet of ' + string(fleet_Size) + '  ' + string(ChargeRate) + 'kW Bi-Directional EVs' ;
+% title( {s_title;s_subTitle},'FontWeight','Normal')
+% axis([0 24 0 max(results_DTD*ChargeRate/1000)*1.1])
+% xlabel('Time of Day (hr)') 
+% ylabel('Power (MW)') 
+% legend('Demand Turn Down', 'Demand Turn Up')		
+% if save_img
+% 	print('DSR Results' ,'-dpng')
+% end
+% close
 
 
-figure
-plot(results_hours, results_DTD*ChargeRate/1000, results_hours, results_DTU*ChargeRate/1000) 
-s_title = '{\bf\fontsize{14} DSR Power vs Time of Day}';
-s_subTitle =  'Vehicle Fleet of ' + string(fleet_Size) + '  ' + string(ChargeRate) + 'kW EVs' ;
-title( {s_title;s_subTitle},'FontWeight','Normal')
-axis([0 24 0 max(results_DTD*ChargeRate/1000)*1.1])
-xlabel('Time of Day (hr)') 
-ylabel('Power (MW)') 
-legend('Demand Turn Down', 'Demand Turn Up')		
-if save_img
-	print('DSR Results' ,'-dpng')
+%% Energy Balance
+
+%Calculate total energy required for vehicle charging
+Energy_Total = fleet_Size * (Req_SoC - StartSoC)*BatSize; %kWh
+for temp = 1:24
+	%Energy for Demand Turn Down = integral of power (remove square wave by only taking every second value)
+% 	Energy_DTD(x,1) = sum(Power_Demand_Turn_Down(:, 2*x));
 end
-close
+
+
 
 % %Plot DTU and DTD Achieved for hour of day with 2 hour DSR service
 % if (DSR_duration == 2)
