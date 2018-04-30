@@ -2,12 +2,7 @@
 
 Electricity grids are facing challenges globally due to rising consumption and an increasing share of renewable generation. This combined with rapid growth in the sales of EVs poses a problem to the ageing power transmission network in the UK. Using bidirectional chargers, it is possible to provide support services to the network in the form of aggregated V2G capable EV fleets. Using a simple combinational algorithm that charges half the fleet on arrival and the other half as late as possible it was proven that the same services can be offered using a larger fleet and unidirectional chargers. To provide the same level of service the fleet needs to be 3.9 times greater for demand turn down, or the exact same size for demand turn up services. This virtual power plant, of remotely activated vehicles, offers a solution to the expected issues on the grid without the need for expensive bidirectional chargers. This sheds light on the over complication of most research that uses complex bidirectional systems instead of the simpler unidirectional ones capable of producing the same result and opening an additional revenue stream to OEMs, EV owners and DSR aggregators.
 
-\bigskip
-\bigskip
-\bigskip
-
-
-\textbf{Index Terms:} EV (Electric Vehicle), Vehicle to Grid (V2G), Demand Side Response (DSR), Original Equipment Manufacturer (OEM)
+Index Terms:EV (Electric Vehicle), Vehicle to Grid (V2G), Demand Side Response (DSR), Original Equipment Manufacturer (OEM)
 
 
 
